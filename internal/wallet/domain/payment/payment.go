@@ -1,6 +1,9 @@
 package payment
 
-import "context"
+import (
+	"context"
+	"github.com/jmoiron/sqlx"
+)
 
 const (
 	Incoming = "incoming"
@@ -17,6 +20,6 @@ type Payment struct {
 
 // Repository describes the persistence on payment model
 type Repository interface {
-	Create(ctx context.Context, payment Payment) error
+	Create(ctx context.Context, tx *sqlx.Tx, payment Payment) error
 	Get(ctx context.Context) ([]Payment, error)
 }

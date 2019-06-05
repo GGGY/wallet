@@ -4,11 +4,13 @@ import (
 	"context"
 	"github.com/GGGY/wallet/internal/wallet/domain/account"
 	"github.com/GGGY/wallet/internal/wallet/domain/payment"
+	"github.com/GGGY/wallet/pkg/db"
 	"github.com/go-kit/kit/log"
+	"github.com/jmoiron/sqlx"
 )
 
 type Service interface {
-	SendPayment(ctx context.Context, payment payment.Payment) (string, error)
+	SendPayment(ctx context.Context, transfer Transfer) (string, error)
 	GetPayments(ctx context.Context) ([]payment.Payment, error)
 	GetAccounts(ctx context.Context) ([]account.Account, error)
 }
@@ -22,13 +24,21 @@ func NewService(accountRepo account.Repository, paymentRepo payment.Repository, 
 }
 
 type wallet struct {
+	db          *sqlx.DB
 	accountRepo account.Repository
 	paymentRepo payment.Repository
 	logger      log.Logger
 }
 
-func (w *wallet) SendPayment(ctx context.Context, payment payment.Payment) (string, error) {
+func (w *wallet) SendPayment(ctx context.Context, transfer Transfer) (string, error) {
 	//todo:logic
+	if err := db.WithTx(w.db, func(tx *sqlx.Tx) error {
+
+		return nil
+	}); err != nil {
+		return "", err
+	}
+
 	return "", nil
 }
 

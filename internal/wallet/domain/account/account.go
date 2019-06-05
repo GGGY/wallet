@@ -1,6 +1,14 @@
 package account
 
-import "context"
+import (
+	"context"
+	"errors"
+	"github.com/jmoiron/sqlx"
+)
+
+var (
+	ErrAccountNotFound = errors.New("balance not found")
+)
 
 // Account represents an account
 type Account struct {
@@ -12,6 +20,7 @@ type Account struct {
 // Repository describes the persistence on account model
 type Repository interface {
 	Create(ctx context.Context, account Account) error
-	ChangeBalance(ctx context.Context, id string, amount float64) error
+	Update(ctx context.Context, tx *sqlx.Tx, account *Account) error
 	Get(ctx context.Context) ([]Account, error)
+	GetByID(ctx context.Context, tx *sqlx.Tx, id string) (*Account, error)
 }
