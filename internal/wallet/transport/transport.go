@@ -9,14 +9,15 @@ import (
 	"github.com/go-kit/kit/endpoint"
 )
 
-type SendPaymentRequest struct {
+type TransferRequest struct {
 	From   string  `json:"from"`
 	To     string  `json:"to"`
 	Amount float64 `json:"amount"`
 }
 
-type SendPaymentResponse struct {
-	Err error `json:"err,omitempty"`
+type TransferResponse struct {
+	Success bool  `json:"success"`
+	Err     error `json:"err,omitempty"`
 }
 
 type GetPaymentsRequest struct{}
@@ -34,32 +35,33 @@ type GetAccountsResponse struct {
 }
 
 type Endpoints struct {
-	SendPayment endpoint.Endpoint
+	Transfer    endpoint.Endpoint
 	GetAccounts endpoint.Endpoint
 	GetPayments endpoint.Endpoint
 }
 
 func MakeEndpoints(s service.Service) Endpoints {
 	return Endpoints{
-		SendPayment: makeSendPaymentEndpoint(s),
+		Transfer:    makeTransferEndpoint(s),
 		GetAccounts: makeGetAccountsEndpoint(s),
 		GetPayments: makeGetPaymentsEndpoint(s),
 	}
 }
 
-func makeSendPaymentEndpoint(s service.Service) endpoint.Endpoint {
+func makeTransferEndpoint(s service.Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
-		req, ok := request.(SendPaymentRequest)
+		req, ok := request.(TransferRequest)
 		if !ok {
 			return nil, errors.New("invalid request")
 		}
-		//todo: dont work with default payment
-		_, err = s.SendPayment(ctx, payment.Payment{
-			Account:     req.From,
-			FromAccount: req.From,
-			Amount:      req.Amount,
-		})
-		return SendPaymentResponse{}, err
+		//todo: check amount is positive
+		err = s.Transfer(ctx, req.From, req.To, req.Amount)
+		var success bool
+		if err == nil {
+			success = true
+		}
+
+		return TransferResponse{Success: success}, err
 	}
 }
 

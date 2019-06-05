@@ -14,7 +14,8 @@ const (
 type Payment struct {
 	Account     string  `json:"account"`
 	Amount      float64 `json:"amount"`
-	FromAccount string  `json:"from_account"`
+	FromAccount string  `json:"from_account,omitempty"`
+	ToAccount   string  `json:"to_account,omitempty"`
 	Direction   string  `json:"direction"`
 }
 

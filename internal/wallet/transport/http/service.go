@@ -27,9 +27,9 @@ func NewService(endpoints transport.Endpoints, logger log.Logger) http.Handler {
 		kithttp.ServerErrorEncoder(encodeError),
 	}
 
-	r.Methods("POST").Path("/send").Handler(kithttp.NewServer(
-		endpoints.SendPayment,
-		decodeSendRequest,
+	r.Methods("POST").Path("/transfer").Handler(kithttp.NewServer(
+		endpoints.Transfer,
+		decodeTransferRequest,
 		encodeResponse,
 		options...,
 	))
@@ -51,10 +51,13 @@ func NewService(endpoints transport.Endpoints, logger log.Logger) http.Handler {
 	return r
 }
 
-func decodeSendRequest(_ context.Context, r *http.Request) (request interface{}, err error) {
-	//todo: logic
+func decodeTransferRequest(_ context.Context, r *http.Request) (request interface{}, err error) {
+	var req transport.TransferRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		return nil, err
+	}
 
-	return nil, nil
+	return req, nil
 }
 
 func decodeGetPaymentsRequest(_ context.Context, r *http.Request) (request interface{}, err error) {
