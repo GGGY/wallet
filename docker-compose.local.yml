@@ -1,0 +1,36 @@
+version: "2.1"
+services:
+  migrate:
+    image: nanopool/account:dev
+    depends_on:
+      db:
+        condition: service_healthy
+    entrypoint: /migrate -verbose -database postgres://app:password@db:5432/app\?sslmode=disable -source file:///migrations/ up
+
+  wallet:
+    image: gggy/wallet:dev
+    environment:
+      - WALLET_DB_USER=app
+      - WALLET_DB_PASSWORD=password
+      - WALLET_DB_HOST=db
+      - WALLET_DB_NAME=app
+    depends_on:
+      db:
+        condition: service_healthy
+    entrypoint: /service d wallet
+    ports:
+      - 8080:8080
+
+  db:
+    image: postgres:latest
+    environment:
+      - POSTGRES_DB=app
+      - POSTGRES_USER=app
+      - POSTGRES_PASSWORD=password
+    ports:
+      - 5432:5432
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U app"]
+      interval: 10s
+      timeout: 5s
+      retries: 5

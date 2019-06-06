@@ -5,6 +5,7 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
+// Payment directions
 const (
 	Incoming = "incoming"
 	Outgoing = "outgoing"
