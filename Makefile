@@ -84,11 +84,11 @@ docker: ## Build a Docker image
 
 .PHONY: dcup
 dcup:: ## Local docker-compose up
-	docker-compose -p $(BINARY_NAME) -f docker-compose.local.yml up -d
+	docker-compose -p $(BINARY_NAME) -f ./deployments/docker-compose.local.yml up
 
 .PHONY: dcdown
 dcdown:: ## Local docker-compose down
-	docker-compose -p $(BINARY_NAME) -f docker-compose.local.yml down
+	docker-compose -p $(BINARY_NAME) -f ./deployments/docker-compose.local.yml down
 
 .PHONY: envcheck
 envcheck:: ## Check environment for all the necessary requirements

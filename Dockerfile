@@ -19,6 +19,7 @@ FROM scratch
 
 COPY --from=builder /service /service
 COPY --from=builder /migrate /migrate
+COPY --from=builder /project/internal/wallet/migrations /migrations
 
 
 CMD ["/service"]

@@ -1,7 +1,7 @@
 version: "2.1"
 services:
   migrate:
-    image: nanopool/account:dev
+    image: gggy/wallet:dev
     depends_on:
       db:
         condition: service_healthy
