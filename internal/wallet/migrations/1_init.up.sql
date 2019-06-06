@@ -1,4 +1,5 @@
 CREATE TYPE CURRENCY AS ENUM ('USD', 'EUR');
+CREATE TYPE DIRECTION AS ENUM ('incoming', 'outgoing');
 
 --account table
 CREATE TABLE account
@@ -19,6 +20,8 @@ CREATE TABLE payment
     amount NUMERIC(36, 18)    DEFAULT 0  NOT NULL,
     from_account VARCHAR(256) DEFAULT '',
     to_account VARCHAR(256)   DEFAULT '',
+    direction DIRECTION                  NOT NULL,
+
     CONSTRAINT payment_account_fk FOREIGN KEY (account)
     REFERENCES account(id)
     ON DELETE CASCADE

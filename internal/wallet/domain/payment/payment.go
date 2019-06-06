@@ -2,6 +2,7 @@ package payment
 
 import (
 	"context"
+	"errors"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -11,12 +12,16 @@ const (
 	Outgoing = "outgoing"
 )
 
+var (
+	ErrPaymentNotFound = errors.New("payment not found")
+)
+
 // Payment represents an payment
 type Payment struct {
 	Account     string  `json:"account"`
 	Amount      float64 `json:"amount"`
-	FromAccount string  `json:"from_account,omitempty"`
-	ToAccount   string  `json:"to_account,omitempty"`
+	FromAccount string  `json:"from_account,omitempty" db:"from_account"`
+	ToAccount   string  `json:"to_account,omitempty" db:"to_account"`
 	Direction   string  `json:"direction"`
 }
 

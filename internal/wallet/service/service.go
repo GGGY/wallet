@@ -16,8 +16,9 @@ type Service interface {
 	GetAccounts(ctx context.Context) ([]account.Account, error)
 }
 
-func NewService(accountRepo account.Repository, paymentRepo payment.Repository, logger log.Logger) Service {
+func NewService(db *sqlx.DB, accountRepo account.Repository, paymentRepo payment.Repository, logger log.Logger) Service {
 	return &wallet{
+		db:          db,
 		accountRepo: accountRepo,
 		paymentRepo: paymentRepo,
 		logger:      logger,
@@ -32,6 +33,7 @@ type wallet struct {
 }
 
 func (w *wallet) Transfer(ctx context.Context, from string, to string, amount float64) error {
+	w.logger.Log("from", from)
 	//todo: don't use float for math
 	if err := db.WithTx(w.db, func(tx *sqlx.Tx) error {
 		balanceFrom, err := w.accountRepo.GetByID(ctx, tx, from)
@@ -99,13 +101,27 @@ func (w *wallet) Transfer(ctx context.Context, from string, to string, amount fl
 }
 
 func (w *wallet) GetPayments(ctx context.Context) ([]payment.Payment, error) {
-	payments := make([]payment.Payment, 0)
+	payments, err := w.paymentRepo.Get(ctx)
+	if err != nil {
+		if err == payment.ErrPaymentNotFound {
+			return payments, nil
+		}
+		w.logger.Log("can't get payments from db: ", err)
+		return payments, err
+	}
 
 	return payments, nil
 }
 
 func (w *wallet) GetAccounts(ctx context.Context) ([]account.Account, error) {
-	accounts := make([]account.Account, 0)
+	accounts, err := w.accountRepo.Get(ctx)
+	if err != nil {
+		if err == account.ErrAccountNotFound {
+			return accounts, nil
+		}
+		w.logger.Log("can't get accounts from db: ", err)
+		return accounts, err
+	}
 
 	return accounts, nil
 }

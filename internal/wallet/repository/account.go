@@ -51,7 +51,7 @@ func (r *accountPg) Get(ctx context.Context) ([]account.Account, error) {
 
 	defer rows.Close()
 
-	var accounts []account.Account
+	accounts := make([]account.Account, 0)
 	for rows.Next() {
 		var current account.Account
 		if err = rows.StructScan(&current); err != nil {
@@ -62,6 +62,9 @@ func (r *accountPg) Get(ctx context.Context) ([]account.Account, error) {
 	}
 
 	if err = rows.Err(); err != nil {
+		if err == sql.ErrNoRows {
+			return accounts, account.ErrAccountNotFound
+		}
 		return nil, err
 	}
 
@@ -84,5 +87,5 @@ func (r *accountPg) GetByID(ctx context.Context, tx *sqlx.Tx, id string) (*accou
 		return nil, account.ErrAccountNotFound
 	}
 
-	return &a, nil
+	return &a, err
 }

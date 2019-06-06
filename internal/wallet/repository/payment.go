@@ -2,7 +2,7 @@ package repository
 
 import (
 	"context"
-	"errors"
+	"database/sql"
 	"github.com/GGGY/wallet/internal/wallet/domain/payment"
 	"github.com/jmoiron/sqlx"
 )
@@ -19,8 +19,8 @@ func NewPaymentPg(db *sqlx.DB) payment.Repository {
 
 func (r *paymentPg) Create(ctx context.Context, tx *sqlx.Tx, payment payment.Payment) error {
 	_, err := tx.Exec(`
-		INSERT INTO payment(account, amount, from_account, direction) VALUES ($1, $2, $3, $4)
-	`, payment.Account, payment.Amount, payment.FromAccount, payment.Direction)
+		INSERT INTO payment(account, amount, from_account, to_account, direction) VALUES ($1, $2, $3, $4, $5)
+	`, payment.Account, payment.Amount, payment.FromAccount, payment.ToAccount, payment.Direction)
 
 	return err
 }
@@ -28,9 +28,10 @@ func (r *paymentPg) Create(ctx context.Context, tx *sqlx.Tx, payment payment.Pay
 func (r *paymentPg) Get(ctx context.Context) ([]payment.Payment, error) {
 	rows, err := r.db.Queryx(`
 		SELECT
-			payment,
+			account,
 		    amount,
 		    from_account,
+		    to_account,
 		    direction
 		FROM payment
 	`)
@@ -41,17 +42,20 @@ func (r *paymentPg) Get(ctx context.Context) ([]payment.Payment, error) {
 
 	defer rows.Close()
 
-	var payments []payment.Payment
+	payments := make([]payment.Payment, 0)
 	for rows.Next() {
 		var current payment.Payment
 		if err = rows.StructScan(&current); err != nil {
-			return nil, errors.New("can't scan account")
+			return nil, err
 		}
 
 		payments = append(payments, current)
 	}
 
 	if err = rows.Err(); err != nil {
+		if err == sql.ErrNoRows {
+			return payments, payment.ErrPaymentNotFound
+		}
 		return nil, err
 	}
 

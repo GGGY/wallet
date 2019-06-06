@@ -9,5 +9,6 @@ require (
 	github.com/golang/mock v1.3.1 // indirect
 	github.com/gorilla/mux v1.7.2
 	github.com/jmoiron/sqlx v1.2.0
+	github.com/lib/pq v1.0.0
 	google.golang.org/appengine v1.6.0 // indirect
 )

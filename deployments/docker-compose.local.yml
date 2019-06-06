@@ -14,12 +14,13 @@ services:
       - WALLET_DB_PASSWORD=password
       - WALLET_DB_HOST=db
       - WALLET_DB_NAME=app
+      - WALLET_DB_PORT=5432
     depends_on:
       db:
         condition: service_healthy
     entrypoint: /service d wallet
     ports:
-      - 8080:8080
+      - 8082:8080
 
   db:
     image: postgres:latest
